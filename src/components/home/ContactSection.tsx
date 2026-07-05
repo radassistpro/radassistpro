@@ -31,6 +31,7 @@ export function ContactSection() {
           organization: fd.get("organization"),
           interest: fd.get("interest"),
           message: fd.get("message"),
+          website: fd.get("website"),
           source: "home-contact",
         }),
       });
@@ -107,7 +108,15 @@ export function ContactSection() {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="relative space-y-5">
+                  <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -left-[9999px] h-0 w-0 opacity-0"
+                  />
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>
                       <label

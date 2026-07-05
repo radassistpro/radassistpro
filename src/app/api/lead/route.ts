@@ -1,26 +1,18 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { isAllowedOrigin, normalizeLeadPayload } from "@/lib/lead-security";
 import { siteConfig } from "@/lib/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 15;
 
 const TO_EMAIL = process.env.LEAD_TO_EMAIL || siteConfig.email;
 const FROM_EMAIL =
   process.env.LEAD_FROM_EMAIL || "RadAssistPro Leads <onboarding@resend.dev>";
 
-type LeadPayload = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  organization?: string;
-  interest?: string;
-  message?: string;
-  source?: string;
-};
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_BODY_BYTES = 12_000;
 
 function esc(value: string): string {
   return value
@@ -38,49 +30,66 @@ function row(label: string, value?: string): string {
   </tr>`;
 }
 
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ ok: false, error: message }, { status });
+}
+
+export async function GET() {
+  return jsonError("Method not allowed.", 405);
+}
+
 export async function POST(request: Request) {
+  if (!isAllowedOrigin(request)) {
+    return jsonError("Forbidden.", 403);
+  }
+
+  const contentType = request.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    return jsonError("Invalid request.", 400);
+  }
+
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > MAX_BODY_BYTES) {
+    return jsonError("Request too large.", 413);
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error("Lead capture failed: RESEND_API_KEY is not set.");
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "We could not send your message right now. Please call or email us directly.",
-      },
-      { status: 500 },
+    console.error("Lead capture misconfigured: missing email provider key.");
+    return jsonError(
+      "We could not send your message right now. Please call or email us directly.",
+      500,
     );
   }
 
-  let data: LeadPayload;
+  let raw: Record<string, unknown>;
   try {
-    data = (await request.json()) as LeadPayload;
+    raw = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "Invalid request body." },
-      { status: 400 },
-    );
+    return jsonError("Invalid request body.", 400);
   }
 
-  const firstName = (data.firstName || "").trim();
-  const lastName = (data.lastName || "").trim();
-  const email = (data.email || "").trim();
-  const phone = (data.phone || "").trim();
-  const organization = (data.organization || "").trim();
-  const interest = (data.interest || "").trim();
-  const message = (data.message || "").trim();
-  const source = (data.source || "website").trim();
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    organization,
+    interest,
+    message,
+    source,
+    honeypot,
+  } = normalizeLeadPayload(raw);
+
+  if (honeypot) {
+    return NextResponse.json({ ok: true });
+  }
 
   if (!firstName || !email) {
-    return NextResponse.json(
-      { ok: false, error: "Name and email are required." },
-      { status: 422 },
-    );
+    return jsonError("Name and email are required.", 422);
   }
   if (!EMAIL_RE.test(email)) {
-    return NextResponse.json(
-      { ok: false, error: "Please enter a valid email address." },
-      { status: 422 },
-    );
+    return jsonError("Please enter a valid email address.", 422);
   }
 
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
@@ -132,17 +141,13 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      return NextResponse.json(
-        { ok: false, error: "We could not send your message. Please try again." },
-        { status: 502 },
-      );
+      console.error("Lead email send failed.");
+      return jsonError("We could not send your message. Please try again.", 502);
     }
 
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "Unexpected error while sending your message." },
-      { status: 500 },
-    );
+    console.error("Lead email unexpected error.");
+    return jsonError("Unexpected error while sending your message.", 500);
   }
 }
