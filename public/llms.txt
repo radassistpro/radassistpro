@@ -1,0 +1,40 @@
+# RadAssistPro
+
+> RadAssistPro provides U.S.-based virtual PACS administration and preliminary
+> teleradiology support that works inside a facility's existing PACS. Virtual
+> PACS admins handle critical-results relay, calls, worklist triage, and
+> addendum coordination; licensed teleradiologists provide preliminary reads for
+> after-hours and overflow volume. RadAssistPro is a unit of RxOnWeb.
+
+## Services
+- [Virtual PACS Admins](https://radassistpro.com/services/virtual-pacs-admin/): Non-interpretive operational support inside your PACS — relays, calls, worklist triage, addendums.
+- [Prelim Teleradiologists](https://radassistpro.com/services/prelim-teleradiology/): Licensed radiologists providing preliminary reads for after-hours and overflow volume.
+- [Pricing](https://radassistpro.com/pricing/): How coverage is scoped and quoted (volume, modality mix, coverage hours, urgency).
+- [How It Works](https://radassistpro.com/how-it-works/): Five-step onboarding; most facilities live in 10–15 business days.
+
+## Guides (Blog)
+- [What Is Teleradiology?](https://radassistpro.com/blog/what-is-teleradiology/): Definition, how it works, coverage models, HIPAA rules.
+- [Virtual PACS Administrator](https://radassistpro.com/blog/virtual-pacs-administrator/): Role, duties, in-house vs outsourced, ROI.
+- [Preliminary vs Final Reads](https://radassistpro.com/blog/preliminary-vs-final-reads/): Definitions, who issues each, discrepancy handling.
+- [Reduce Radiology Turnaround Time](https://radassistpro.com/blog/reduce-radiology-turnaround-time/): Nine tactics to cut TAT without adding radiologists.
+- [Teleradiology Cost & Pricing](https://radassistpro.com/blog/teleradiology-cost-pricing/): Per-study, per-hour, and subscription models.
+- [After-Hours & Nighthawk Radiology](https://radassistpro.com/blog/after-hours-nighthawk-radiology/): Overnight coverage models and how to choose a provider.
+- [Teleradiology vs In-House Radiology](https://radassistpro.com/blog/teleradiology-vs-in-house-radiology/): Cost, turnaround, coverage, and when each model wins.
+- [What Is a PACS in Radiology?](https://radassistpro.com/blog/what-is-pacs/): Components, how it works, PACS vs RIS vs EHR, cloud vs on-prem.
+- [The U.S. Radiologist Shortage](https://radassistpro.com/blog/us-radiologist-shortage/): Causes, impact on turnaround and burnout, and solutions.
+- [HIPAA Compliance in Teleradiology](https://radassistpro.com/blog/hipaa-compliance-teleradiology/): BAA requirement, safeguards, licensure, and a checklist.
+- [How to Choose a Teleradiology Company](https://radassistpro.com/blog/how-to-choose-teleradiology-company/): A 12-point selection checklist and red flags.
+- [Critical Results Reporting in Radiology](https://radassistpro.com/blog/critical-results-reporting/): Categories, documentation rules, and best practices.
+
+## Key facts
+- Coverage: U.S. radiology groups, imaging centers, urgent care, and hospital networks.
+- Compliance: HIPAA-aligned workflows; a Business Associate Agreement (BAA) is executed before any PHI access.
+- Model: Works inside your existing PACS with roles your IT team controls — no new clinical software.
+- Onboarding: Most facilities go live in 10–15 business days; no setup fees; no long-term contract required.
+- Coverage hours: 24/7/365, including nights, weekends, and holidays.
+
+## Contact
+- Book a call: https://radassistpro.com/book-a-call/
+- Email: business@radassistpro.com
+- Phone: +1 (848) 221-8002
+- Address: 1625 Jacks Way, Toms River, NJ 08755, USA
