@@ -34,9 +34,22 @@ export function getAllowedOrigins(): string[] {
 }
 
 export function isAllowedOrigin(request: Request): boolean {
+  const allowed = getAllowedOrigins();
   const origin = request.headers.get("origin");
-  if (!origin) return true;
-  return getAllowedOrigins().includes(origin);
+  if (origin) {
+    return allowed.includes(origin);
+  }
+
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try {
+      return allowed.includes(new URL(referer).origin);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
 }
 
 export function trimField(value: unknown, max: number): string {
