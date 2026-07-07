@@ -179,7 +179,7 @@ export default function UrgentCareErPage() {
       <CTABand
         title="Close your after-hours gap"
         description="Book a 15-minute call. We will map your peak-hour volumes and STAT rules to a coverage plan."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See How Onboarding Works"
         secondaryHref="/how-it-works"

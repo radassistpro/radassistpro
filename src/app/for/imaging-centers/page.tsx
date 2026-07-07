@@ -179,7 +179,7 @@ export default function ImagingCentersPage() {
       <CTABand
         title="Give your radiologists their day back"
         description="Book a 15-minute call. We will scope coverage for your hours, volumes, and referrer base."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See Pricing Model"
         secondaryHref="/pricing"

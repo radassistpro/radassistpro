@@ -23,7 +23,7 @@ export function HomeContactCTA() {
             </div>
             <div className="mt-6 flex flex-wrap gap-3 md:mt-0 md:shrink-0">
               <Button href="/book-a-call" variant="primary" size="lg">
-                Book a Call
+                Book a 15-Minute Call
                 <ArrowRight className="h-4 w-4" />
               </Button>
               <Button href="/how-it-works" variant="outline" size="lg">

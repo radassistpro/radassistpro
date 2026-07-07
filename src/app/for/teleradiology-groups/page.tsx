@@ -179,7 +179,7 @@ export default function TeleradiologyGroupsPage() {
       <CTABand
         title="Scope coverage across your sites"
         description="Book a 15-minute call. We will map your per-site volumes to a coverage plan and go-live timeline."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See How Onboarding Works"
         secondaryHref="/how-it-works"

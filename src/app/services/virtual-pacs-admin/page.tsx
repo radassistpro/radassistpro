@@ -234,7 +234,7 @@ export default function VirtualPacsAdminPage() {
       <CTABand
         title="Put the phones and paperwork on us"
         description="Book a 15-minute call. We will map your call volumes and coverage hours to a scoped plan."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See Pricing Model"
         secondaryHref="/pricing"

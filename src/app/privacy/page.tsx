@@ -22,10 +22,10 @@ export default function PrivacyPage() {
         <div className="container-narrow px-5 prose-policy">
           <h2>Information We Collect</h2>
           <p>
-            When you contact us through our website, book a call, or engage our
-            services, we may collect your name, work email, phone number,
-            organization, role, and any information you voluntarily provide
-            about your radiology operations.
+            When you book a call through our website (via Cal.com), engage our
+            services, or contact us directly, we may collect your name, work
+            email, phone number, organization, role, and any information you
+            voluntarily provide about your radiology operations.
           </p>
 
           <h2>How We Use Your Information</h2>
@@ -41,9 +41,9 @@ export default function PrivacyPage() {
           <h2>HIPAA and Protected Health Information</h2>
           <p>
             {siteConfig.name} operates under Business Associate Agreements with
-            covered entities where applicable. We do not use website contact
-            forms to collect protected health information (PHI). Operational PHI
-            is handled only within your authorized PACS
+            covered entities where applicable. We do not collect protected
+            health information (PHI) through our website booking flow.
+            Operational PHI is handled only within your authorized PACS
             environments under your established protocols.
           </p>
 

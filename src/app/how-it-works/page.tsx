@@ -128,7 +128,7 @@ export default function HowItWorksPage() {
       <CTABand
         title="Ready to review your workflow?"
         description="Book a 15-minute call. We will map your volumes to a coverage plan and go-live timeline."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
       />
     </>

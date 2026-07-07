@@ -280,3 +280,15 @@ body {
   color: var(--blue-600);
   text-decoration: underline;
 }
+
+/* Cal.com inline embed */
+.cal-embed-frame [data-cal-namespace] {
+  width: 100%;
+  min-height: 720px;
+}
+
+@media (max-width: 640px) {
+  .cal-embed-frame [data-cal-namespace] {
+    min-height: 640px;
+  }
+}

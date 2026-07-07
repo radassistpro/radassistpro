@@ -40,7 +40,7 @@ export function Footer() {
                 ))}
                 <li>
                   <Link href="/book-a-call" className="text-sm text-white/70 hover:text-white transition-colors cursor-pointer">
-                    Book a Call
+                    Book a 15-Minute Call
                   </Link>
                 </li>
               </ul>
@@ -128,7 +128,7 @@ export function Footer() {
                 Terms
               </Link>
               <Link href="/book-a-call" className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors cursor-pointer">
-                Book a call
+                Book a 15-minute call
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>

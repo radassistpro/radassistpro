@@ -127,7 +127,7 @@ export default function BlogPage() {
       <CTABand
         title="Want coverage, not just content?"
         description="Book a 15-minute call and we will map your study volumes to a PACS administration and prelim coverage plan."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See How It Works"
         secondaryHref="/how-it-works"

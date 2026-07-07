@@ -218,7 +218,7 @@ export default function AboutPage() {
       <CTABand
         title="Talk to our team"
         description="Book a 15-minute call to learn how RadAssistPro fits your radiology operations."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See Onboarding Steps"
         secondaryHref="/how-it-works"

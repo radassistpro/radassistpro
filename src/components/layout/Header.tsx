@@ -80,7 +80,7 @@ export function Header() {
             See Process
           </Button>
           <Button href="/book-a-call" variant="primary" size="sm">
-            Book a Call
+            Book a 15-Min Call
           </Button>
         </div>
 
@@ -113,7 +113,7 @@ export function Header() {
               </Link>
             ))}
             <Button href="/book-a-call" variant="primary" className="mt-4 w-full">
-              Book a Call
+              Book a 15-Min Call
             </Button>
           </nav>
         </div>

@@ -173,7 +173,7 @@ export default function OnePacsPage() {
       <CTABand
         title="Running OnePACS? The ramp is short."
         description="Book a 15-minute call. We will scope coverage for your volumes and provide the provisioning checklist for your IT."
-        primaryLabel="Book a Call"
+        primaryLabel="Book a 15-Minute Call"
         primaryHref="/book-a-call"
         secondaryLabel="See How Onboarding Works"
         secondaryHref="/how-it-works"
