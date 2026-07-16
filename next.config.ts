@@ -27,6 +27,11 @@ const securityHeaders = [
   },
 ];
 
+const portalHost = {
+  type: "host" as const,
+  value: "portal.radassistpro.com",
+};
+
 const nextConfig: NextConfig = {
   trailingSlash: true,
   poweredByHeader: false,
@@ -42,10 +47,29 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Do not apply marketing-site CSP to the employee portal proxy.
         source: "/(.*)",
+        missing: [portalHost],
         headers: securityHeaders,
       },
     ];
+  },
+  async rewrites() {
+    // beforeFiles so this runs before Next.js serves the marketing homepage.
+    return {
+      beforeFiles: [
+        {
+          source: "/",
+          has: [portalHost],
+          destination: "https://crew-hub.v-gupta-workspace.workers.dev/",
+        },
+        {
+          source: "/:path*",
+          has: [portalHost],
+          destination: "https://crew-hub.v-gupta-workspace.workers.dev/:path*",
+        },
+      ],
+    };
   },
 };
 
