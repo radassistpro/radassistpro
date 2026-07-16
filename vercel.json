@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "portal.radassistpro.com" }],
+      "destination": "https://crew-hub.v-gupta-workspace.workers.dev/:path*"
+    }
+  ]
+}
