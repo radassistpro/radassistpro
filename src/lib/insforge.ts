@@ -8,6 +8,13 @@ export function getInsforgeUrl() {
   );
 }
 
+/** True when public InsForge env is present (safe to call during build). */
+export function hasInsforgePublicEnv() {
+  return Boolean(
+    process.env.NEXT_PUBLIC_INSFORGE_URL && process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY,
+  );
+}
+
 /** Browser / public (anon) client */
 export function createPublicClient() {
   const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL;

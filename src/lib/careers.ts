@@ -1,4 +1,8 @@
-import { createPublicClient, createInsforgeAdmin } from "@/lib/insforge";
+import {
+  createInsforgeAdmin,
+  createPublicClient,
+  hasInsforgePublicEnv,
+} from "@/lib/insforge";
 import {
   mapTemplateRow,
   type ApplicationFormTemplate,
@@ -159,6 +163,7 @@ export function mapJobRow(row: JobRow, template?: ApplicationFormTemplate): Job 
 async function loadTemplateForJob(
   formTemplateId: string | null,
 ): Promise<ApplicationFormTemplate | undefined> {
+  if (!hasInsforgePublicEnv()) return undefined;
   const client = createPublicClient();
   if (formTemplateId) {
     const { data } = await client.database
@@ -178,6 +183,7 @@ async function loadTemplateForJob(
 }
 
 export async function getPublishedJobs(): Promise<Job[]> {
+  if (!hasInsforgePublicEnv()) return [];
   const client = createPublicClient();
   const { data, error } = await client.database
     .from("jobs")
@@ -194,6 +200,7 @@ export async function getPublishedJobs(): Promise<Job[]> {
 }
 
 export async function getJobBySlug(slug: string): Promise<Job | undefined> {
+  if (!hasInsforgePublicEnv()) return undefined;
   const client = createPublicClient();
   const { data, error } = await client.database
     .from("jobs")
@@ -214,6 +221,7 @@ export async function getAllJobSlugs(): Promise<string[]> {
 }
 
 export async function getFormTemplates(): Promise<ApplicationFormTemplate[]> {
+  if (!hasInsforgePublicEnv()) return [];
   const client = createPublicClient();
   const { data, error } = await client.database
     .from("application_form_templates")
