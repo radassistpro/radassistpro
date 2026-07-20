@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { createInsforgeAdmin, createPublicClient } from "@/lib/insforge";
 import { guardApiRequest, securityErrorResponse } from "@/lib/api-security";
+import {
+  mapTemplateRow,
+  splitApplicationPayload,
+  validateApplicationAgainstTemplate,
+} from "@/lib/application-form-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,36 +34,75 @@ export async function POST(request: Request) {
     });
 
     const fd = await request.formData();
-
-    const firstName = str(fd, "firstName");
-    const lastName = str(fd, "lastName");
-    const email = str(fd, "email");
-    const phone = str(fd, "phone");
     const jobId = str(fd, "jobId");
-    const city = str(fd, "city");
-    const yearsExperience = str(fd, "yearsExperience");
-    const primarySoftware = str(fd, "primarySoftware");
-    const portfolioUrl = str(fd, "portfolioUrl");
-    const videoLinks = str(fd, "videoLinks");
-    const currentComp = str(fd, "currentComp");
-    const expectedComp = str(fd, "expectedComp");
-    const coverNote = str(fd, "coverNote", MAX_NOTE);
-    const linkedin = str(fd, "linkedin");
-
-    if (!firstName || !lastName || !email || !phone || !jobId || !portfolioUrl || !videoLinks) {
+    if (!jobId) {
       return NextResponse.json(
-        { ok: false, error: "Please complete all required fields." },
-        { status: 422 },
-      );
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json(
-        { ok: false, error: "Enter a valid email address." },
+        { ok: false, error: "This role is no longer accepting applications." },
         { status: 422 },
       );
     }
 
-    const resume = fd.get("resume");
+    const publicClient = createPublicClient();
+    const { data: job, error: jobError } = await publicClient.database
+      .from("jobs")
+      .select("id, status, form_template_id")
+      .eq("id", jobId)
+      .eq("status", "published")
+      .maybeSingle();
+
+    if (jobError || !job) {
+      return NextResponse.json(
+        { ok: false, error: "This role is no longer accepting applications." },
+        { status: 404 },
+      );
+    }
+
+    let template = null;
+    if (job.form_template_id) {
+      const { data } = await publicClient.database
+        .from("application_form_templates")
+        .select("*")
+        .eq("id", job.form_template_id)
+        .maybeSingle();
+      template = data;
+    }
+    if (!template) {
+      const { data } = await publicClient.database
+        .from("application_form_templates")
+        .select("*")
+        .eq("slug", "video-editor")
+        .maybeSingle();
+      template = data;
+    }
+
+    if (!template) {
+      return NextResponse.json(
+        { ok: false, error: "Application form is not configured for this role." },
+        { status: 503 },
+      );
+    }
+
+    const formTemplate = mapTemplateRow(template);
+    const values: Record<string, string> = {};
+    for (const field of formTemplate.fields) {
+      if (field.type === "file") continue;
+      const max = field.id === "coverNote" ? MAX_NOTE : MAX_FIELD;
+      values[field.id] = str(fd, field.id, max);
+    }
+
+    const resumeField = formTemplate.fields.find((f) => f.type === "file");
+    const resume = resumeField ? fd.get(resumeField.id) : fd.get("resume");
+    const hasResume = resume instanceof File && resume.size > 0;
+
+    const validationError = validateApplicationAgainstTemplate(
+      formTemplate.fields,
+      values,
+      hasResume,
+    );
+    if (validationError) {
+      return NextResponse.json({ ok: false, error: validationError }, { status: 422 });
+    }
+
     if (!(resume instanceof File) || resume.size === 0) {
       return NextResponse.json(
         { ok: false, error: "Please upload your resume." },
@@ -78,21 +122,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Confirm job exists and is published (public client)
-    const publicClient = createPublicClient();
-    const { data: job, error: jobError } = await publicClient.database
-      .from("jobs")
-      .select("id, status")
-      .eq("id", jobId)
-      .eq("status", "published")
-      .maybeSingle();
-
-    if (jobError || !job) {
-      return NextResponse.json(
-        { ok: false, error: "This role is no longer accepting applications." },
-        { status: 404 },
-      );
-    }
+    const { columns, formResponses } = splitApplicationPayload(formTemplate.fields, values);
 
     const admin = createInsforgeAdmin();
     const safeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
@@ -116,19 +146,20 @@ export async function POST(request: Request) {
         {
           job_id: jobId,
           status: "new",
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          phone,
-          linkedin: linkedin || null,
-          city,
-          years_experience: yearsExperience,
-          primary_software: primarySoftware,
-          portfolio_url: portfolioUrl,
-          video_links: videoLinks,
-          current_comp: currentComp,
-          expected_comp: expectedComp,
-          cover_note: coverNote || null,
+          first_name: columns.first_name || "",
+          last_name: columns.last_name || "",
+          email: columns.email || "",
+          phone: columns.phone || "",
+          linkedin: columns.linkedin || null,
+          city: columns.city || "",
+          years_experience: columns.years_experience || "",
+          primary_software: columns.primary_software || "",
+          portfolio_url: columns.portfolio_url || "",
+          video_links: columns.video_links || "",
+          current_comp: columns.current_comp || "",
+          expected_comp: columns.expected_comp || "",
+          cover_note: columns.cover_note || null,
+          form_responses: formResponses,
           resume_file_name: resume.name,
           resume_key: uploaded.key || objectKey,
           resume_url: uploaded.url || null,

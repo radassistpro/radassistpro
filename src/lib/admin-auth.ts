@@ -10,7 +10,7 @@ export async function setHrSession(accessToken: string) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-    path: "/admin",
+    path: "/",
     maxAge: 60 * 60 * 24 * 3,
   });
 }
@@ -21,7 +21,7 @@ export async function clearHrSession() {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-    path: "/admin",
+    path: "/",
     maxAge: 0,
   });
 }

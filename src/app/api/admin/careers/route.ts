@@ -32,6 +32,7 @@ type JobPayload = {
   pay?: string;
   benefits?: string[];
   posted_at?: string | null;
+  form_template_id?: string | null;
   updated_at?: string;
 };
 
@@ -67,6 +68,7 @@ function sanitizePayload(body: JobPayload) {
       pay: body.pay?.trim() || "",
       benefits: Array.isArray(body.benefits) ? body.benefits : [],
       posted_at: body.posted_at || null,
+      form_template_id: body.form_template_id?.trim() || null,
       updated_at: new Date().toISOString(),
     },
   };
@@ -77,12 +79,16 @@ export async function GET() {
     await requireHrUser();
     const admin = createInsforgeAdmin();
 
-    const [{ data: jobs }, { data: applications }] = await Promise.all([
+    const [{ data: jobs }, { data: applications }, { data: templates }] = await Promise.all([
       admin.database.from("jobs").select("*").order("updated_at", { ascending: false }),
       admin.database
         .from("applications")
         .select("*, jobs(title, slug)")
         .order("created_at", { ascending: false }),
+      admin.database
+        .from("application_form_templates")
+        .select("*")
+        .order("name", { ascending: true }),
     ]);
 
     const appRows = applications || [];
@@ -95,6 +101,13 @@ export async function GET() {
       ok: true,
       jobs: (jobs || []).map((j) => ({ ...j, applicationCount: counts[j.id] || 0 })),
       applications: appRows,
+      templates: (templates || []).map((t) => ({
+        id: t.id,
+        slug: t.slug,
+        name: t.name,
+        description: t.description,
+        fields: t.fields,
+      })),
       stats: {
         jobs: (jobs || []).length,
         published: (jobs || []).filter((j) => j.status === "published").length,

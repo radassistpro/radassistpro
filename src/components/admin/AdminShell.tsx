@@ -4,12 +4,13 @@ import Image from "next/image";
 import {
   Briefcase,
   FilePlus2,
+  FormInput,
   Inbox,
   LogOut,
   UserPlus,
 } from "lucide-react";
 
-type NavId = "jobs" | "jobForm" | "applications" | "users";
+type NavId = "jobs" | "jobForm" | "templates" | "templateForm" | "applications" | "users";
 
 type Props = {
   activeTab: NavId;
@@ -25,6 +26,7 @@ type Props = {
 const navItems: { id: NavId; label: string; icon: typeof Briefcase }[] = [
   { id: "jobs", label: "Job postings", icon: Briefcase },
   { id: "jobForm", label: "Create / edit", icon: FilePlus2 },
+  { id: "templates", label: "Apply forms", icon: FormInput },
   { id: "applications", label: "Applications", icon: Inbox },
   { id: "users", label: "Team access", icon: UserPlus },
 ];
@@ -62,12 +64,20 @@ export function AdminShell({
                 key={id}
                 type="button"
                 onClick={() => onNavigate(id)}
-                className={`admin-nav-item ${activeTab === id ? "active" : ""}`}
+                className={`admin-nav-item ${
+                  activeTab === id || (id === "templates" && activeTab === "templateForm")
+                    ? "active"
+                    : ""
+                }`}
               >
                 <span className="admin-nav-icon">
                   <Icon className="h-4 w-4" strokeWidth={1.75} />
                 </span>
-                {id === "jobForm" ? jobFormLabel : label}
+                {id === "jobForm"
+                  ? jobFormLabel
+                  : id === "templateForm"
+                    ? "Edit template"
+                    : label}
               </button>
             ))}
           </nav>

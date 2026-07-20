@@ -27,6 +27,7 @@ export type JobFormValues = {
   pay: string;
   benefits: string;
   postedAt: string;
+  formTemplateId: string;
 };
 
 export const emptyJobForm = (): JobFormValues => ({
@@ -48,6 +49,7 @@ export const emptyJobForm = (): JobFormValues => ({
   pay: "",
   benefits: "",
   postedAt: new Date().toISOString().slice(0, 10),
+  formTemplateId: "",
 });
 
 export function slugify(title: string): string {
@@ -88,6 +90,7 @@ type DbJob = {
   pay: string;
   benefits: string[] | null;
   posted_at: string | null;
+  form_template_id: string | null;
 };
 
 export function dbJobToForm(job: DbJob): JobFormValues {
@@ -110,6 +113,7 @@ export function dbJobToForm(job: DbJob): JobFormValues {
     pay: job.pay,
     benefits: arrayToLines(job.benefits),
     postedAt: job.posted_at || new Date().toISOString().slice(0, 10),
+    formTemplateId: job.form_template_id || "",
   };
 }
 
@@ -133,6 +137,7 @@ export function formToDbPayload(values: JobFormValues) {
     pay: values.pay.trim(),
     benefits: linesToArray(values.benefits),
     posted_at: values.postedAt || null,
+    form_template_id: values.formTemplateId || null,
     updated_at: new Date().toISOString(),
   };
 }

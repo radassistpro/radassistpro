@@ -1,11 +1,14 @@
 [auth]
 allowed_redirect_urls = [
   "http://localhost:3010/admin/careers/login",
-  "http://localhost:3010/admin/careers/reset-password",
+  "http://localhost:3010/admin/careers/new-password",
+  "http://localhost:3010/admin/careers/verify-code",
   "https://radassistpro.com/admin/careers/login",
-  "https://radassistpro.com/admin/careers/reset-password",
+  "https://radassistpro.com/admin/careers/new-password",
+  "https://radassistpro.com/admin/careers/verify-code",
   "https://www.radassistpro.com/admin/careers/login",
-  "https://www.radassistpro.com/admin/careers/reset-password",
+  "https://www.radassistpro.com/admin/careers/new-password",
+  "https://www.radassistpro.com/admin/careers/verify-code",
 ]
 require_email_verification = false
 verify_email_method = "code"
@@ -13,11 +16,11 @@ reset_password_method = "code"
 disable_signup = false
 
 [auth.password]
-min_length = 8
-require_number = false
-require_lowercase = false
-require_uppercase = false
-require_special_char = false
+min_length = 12
+require_number = true
+require_lowercase = true
+require_uppercase = true
+require_special_char = true
 
 [auth.smtp]
 enabled = false

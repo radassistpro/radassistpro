@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
-export function AdminLoginForm() {
-  const router = useRouter();
+function LoginFormInner() {
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get("reset") === "success";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,20 +20,25 @@ export function AdminLoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "same-origin",
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || "Login failed");
-      router.replace("/admin/careers");
-      router.refresh();
+      // Full navigation ensures the session cookie is applied before the dashboard loads.
+      window.location.assign("/admin/careers/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
       setLoading(false);
     }
   }
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      {resetSuccess && (
+        <div className="admin-toast !mt-0">
+          Password updated. Sign in with your new password.
+        </div>
+      )}
       <label className="block">
         <span className="admin-label">Work email</span>
         <input
@@ -70,5 +76,13 @@ export function AdminLoginForm() {
         </div>
       )}
     </form>
+  );
+}
+
+export function AdminLoginForm() {
+  return (
+    <Suspense fallback={<p className="admin-muted text-sm">Loading…</p>}>
+      <LoginFormInner />
+    </Suspense>
   );
 }

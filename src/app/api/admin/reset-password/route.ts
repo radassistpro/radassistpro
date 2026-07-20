@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { createClient } from "@insforge/sdk";
 import { createInsforgeAdmin, getInsforgeUrl } from "@/lib/insforge";
 import {
+  clearPasswordResetToken,
+  getPasswordResetToken,
+} from "@/lib/password-reset-session";
+import {
+  appendPasswordHistory,
+  matchesPasswordHistory,
+  passwordPolicyError,
+} from "@/lib/password-policy";
+import {
   guardApiRequest,
   readJsonBody,
   securityErrorResponse,
@@ -9,6 +18,11 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((v): v is string => typeof v === "string");
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,40 +32,42 @@ export async function POST(request: Request) {
       windowMs: 60 * 60 * 1000,
     });
 
-    const body = await readJsonBody<{
-      email?: string;
-      code?: string;
-      newPassword?: string;
-    }>(request);
-
-    const email = body.email?.trim().toLowerCase();
-    const code = body.code?.trim();
-    const newPassword = body.newPassword || "";
-
-    if (!email || !code || !newPassword) {
+    const resetSession = await getPasswordResetToken();
+    if (!resetSession) {
       return NextResponse.json(
-        { ok: false, error: "Email, code, and new password are required." },
-        { status: 422 },
+        { ok: false, error: "Your passcode session expired. Please verify again." },
+        { status: 401 },
       );
     }
-    if (newPassword.length < 8) {
-      return NextResponse.json(
-        { ok: false, error: "Password must be at least 8 characters." },
-        { status: 422 },
-      );
+
+    const body = await readJsonBody<{ newPassword?: string }>(request);
+    const newPassword = body.newPassword || "";
+
+    const policyError = passwordPolicyError(newPassword);
+    if (policyError) {
+      return NextResponse.json({ ok: false, error: policyError }, { status: 422 });
     }
 
     const admin = createInsforgeAdmin();
     const { data: profile } = await admin.database
       .from("hr_profiles")
-      .select("id")
-      .eq("email", email)
+      .select("id, password_history")
+      .eq("email", resetSession.email)
       .maybeSingle();
 
     if (!profile) {
+      await clearPasswordResetToken();
+      return NextResponse.json({ ok: false, error: "Account not found." }, { status: 400 });
+    }
+
+    const history = asStringArray(profile.password_history);
+    if (matchesPasswordHistory(newPassword, history)) {
       return NextResponse.json(
-        { ok: false, error: "Invalid code or email." },
-        { status: 400 },
+        {
+          ok: false,
+          error: "You cannot reuse a recent password. Choose one you have not used before.",
+        },
+        { status: 422 },
       );
     }
 
@@ -60,21 +76,9 @@ export async function POST(request: Request) {
       anonKey: process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!,
     });
 
-    const { data: tokenData, error: tokenError } = await client.auth.exchangeResetPasswordToken({
-      email,
-      code,
-    });
-
-    if (tokenError || !tokenData?.token) {
-      return NextResponse.json(
-        { ok: false, error: "Invalid or expired reset code." },
-        { status: 400 },
-      );
-    }
-
     const { error: resetError } = await client.auth.resetPassword({
       newPassword,
-      otp: tokenData.token,
+      otp: resetSession.token,
     });
 
     if (resetError) {
@@ -83,6 +87,14 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+
+    const updatedHistory = appendPasswordHistory(history, newPassword);
+    await admin.database
+      .from("hr_profiles")
+      .update({ password_history: updatedHistory, updated_at: new Date().toISOString() })
+      .eq("id", profile.id);
+
+    await clearPasswordResetToken();
 
     return NextResponse.json({ ok: true, message: "Password updated. You can sign in now." });
   } catch (err) {

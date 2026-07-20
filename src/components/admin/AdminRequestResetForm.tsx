@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function AdminForgotPasswordForm() {
+export function AdminRequestResetForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -13,16 +14,16 @@ export function AdminForgotPasswordForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setMessage("");
     try {
       const res = await fetch("/api/admin/forgot-password/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
+        credentials: "same-origin",
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || "Request failed");
-      setMessage(json.message || "Check your email for a reset code.");
+      router.push(`/admin/careers/verify-code/?email=${encodeURIComponent(email.trim().toLowerCase())}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed");
     } finally {
@@ -47,7 +48,6 @@ export function AdminForgotPasswordForm() {
       <button type="submit" className="admin-btn admin-btn-primary w-full !py-2.5" disabled={loading}>
         {loading ? "Sending…" : "Send reset code"}
       </button>
-      {message && <div className="admin-toast !mt-0">{message}</div>}
       {error && (
         <div className="admin-toast error !mt-0" role="alert">
           {error}

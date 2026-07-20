@@ -8,6 +8,7 @@ import {
   readJsonBody,
   securityErrorResponse,
 } from "@/lib/api-security";
+import { appendPasswordHistory, passwordPolicyError } from "@/lib/password-policy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,11 +39,12 @@ export async function POST(request: Request) {
     const fullName = body.fullName?.trim() || "";
     const role = body.role === "admin" ? "admin" : "hr";
 
-    if (!email || !password || password.length < 8) {
-      return NextResponse.json(
-        { ok: false, error: "Email and password (min 8 chars) are required." },
-        { status: 422 },
-      );
+    if (!email) {
+      return NextResponse.json({ ok: false, error: "Email is required." }, { status: 422 });
+    }
+    const policyError = passwordPolicyError(password);
+    if (policyError) {
+      return NextResponse.json({ ok: false, error: policyError }, { status: 422 });
     }
 
     const client = createClient({
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
         email,
         full_name: fullName || email,
         role,
+        password_history: appendPasswordHistory([], password),
       },
     ]);
 

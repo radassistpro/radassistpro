@@ -8,6 +8,7 @@ import {
   locations,
   type JobStatus,
 } from "@/lib/careers";
+import type { ApplicationFormTemplate } from "@/lib/application-form-templates";
 import {
   dbJobToForm,
   emptyJobForm,
@@ -20,6 +21,7 @@ type DbJob = Parameters<typeof dbJobToForm>[0] & { id: string };
 
 type Props = {
   job?: DbJob | null;
+  templates: ApplicationFormTemplate[];
   onSaved: () => void;
   onCancel: () => void;
 };
@@ -42,7 +44,7 @@ function Field({
   );
 }
 
-export function AdminJobForm({ job, onSaved, onCancel }: Props) {
+export function AdminJobForm({ job, templates, onSaved, onCancel }: Props) {
   const [values, setValues] = useState<JobFormValues>(emptyJobForm);
   const [slugTouched, setSlugTouched] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -59,6 +61,14 @@ export function AdminJobForm({ job, onSaved, onCancel }: Props) {
     }
     setError("");
   }, [job]);
+
+  useEffect(() => {
+    if (!job && templates.length > 0) {
+      setValues((prev) =>
+        prev.formTemplateId ? prev : { ...prev, formTemplateId: templates[0].id },
+      );
+    }
+  }, [job, templates]);
 
   function update<K extends keyof JobFormValues>(key: K, value: JobFormValues[K]) {
     setValues((prev) => {
@@ -83,6 +93,11 @@ export function AdminJobForm({ job, onSaved, onCancel }: Props) {
     }
     if (!payload.slug) {
       setError("Slug is required.");
+      setSaving(false);
+      return;
+    }
+    if (!values.formTemplateId) {
+      setError("Select an application form template.");
       setSaving(false);
       return;
     }
@@ -204,6 +219,26 @@ export function AdminJobForm({ job, onSaved, onCancel }: Props) {
                   placeholder="Up to ₹50,000.00 per month"
                   className="admin-input"
                 />
+              </Field>
+              <Field
+                label="Application form template"
+                hint="Controls which fields candidates fill out when applying."
+              >
+                <select
+                  required
+                  value={values.formTemplateId}
+                  onChange={(e) => update("formTemplateId", e.target.value)}
+                  className="admin-select"
+                >
+                  <option value="" disabled>
+                    Select a template…
+                  </option>
+                  {templates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name}
+                    </option>
+                  ))}
+                </select>
               </Field>
               <Field label="Status">
                 <select

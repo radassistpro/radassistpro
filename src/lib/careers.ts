@@ -1,4 +1,8 @@
 import { createPublicClient, createInsforgeAdmin } from "@/lib/insforge";
+import {
+  mapTemplateRow,
+  type ApplicationFormTemplate,
+} from "@/lib/application-form-templates";
 
 export type JobStatus = "published" | "draft" | "archived";
 
@@ -49,6 +53,8 @@ export type Job = {
   benefits: string[];
   postedAt: string;
   featured?: boolean;
+  formTemplateId?: string;
+  formTemplate?: ApplicationFormTemplate;
 };
 
 export type ApplicationStatus =
@@ -108,6 +114,15 @@ type JobRow = {
   pay: string;
   benefits: string[] | null;
   posted_at: string | null;
+  form_template_id: string | null;
+};
+
+type TemplateRow = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  fields: unknown;
 };
 
 function asStringArray(value: unknown): string[] {
@@ -115,7 +130,7 @@ function asStringArray(value: unknown): string[] {
   return [];
 }
 
-export function mapJobRow(row: JobRow): Job {
+export function mapJobRow(row: JobRow, template?: ApplicationFormTemplate): Job {
   return {
     id: row.id,
     slug: row.slug,
@@ -136,7 +151,30 @@ export function mapJobRow(row: JobRow): Job {
     pay: row.pay,
     benefits: asStringArray(row.benefits),
     postedAt: row.posted_at || new Date().toISOString().slice(0, 10),
+    formTemplateId: row.form_template_id || undefined,
+    formTemplate: template,
   };
+}
+
+async function loadTemplateForJob(
+  formTemplateId: string | null,
+): Promise<ApplicationFormTemplate | undefined> {
+  const client = createPublicClient();
+  if (formTemplateId) {
+    const { data } = await client.database
+      .from("application_form_templates")
+      .select("*")
+      .eq("id", formTemplateId)
+      .maybeSingle();
+    if (data) return mapTemplateRow(data as TemplateRow);
+  }
+
+  const { data: fallback } = await client.database
+    .from("application_form_templates")
+    .select("*")
+    .eq("slug", "video-editor")
+    .maybeSingle();
+  return fallback ? mapTemplateRow(fallback as TemplateRow) : undefined;
 }
 
 export async function getPublishedJobs(): Promise<Job[]> {
@@ -152,7 +190,7 @@ export async function getPublishedJobs(): Promise<Job[]> {
     console.error("Failed to load published jobs", error);
     return [];
   }
-  return ((data || []) as JobRow[]).map(mapJobRow);
+  return ((data || []) as JobRow[]).map((row) => mapJobRow(row));
 }
 
 export async function getJobBySlug(slug: string): Promise<Job | undefined> {
@@ -165,12 +203,28 @@ export async function getJobBySlug(slug: string): Promise<Job | undefined> {
     .maybeSingle();
 
   if (error || !data) return undefined;
-  return mapJobRow(data as JobRow);
+  const row = data as JobRow;
+  const template = await loadTemplateForJob(row.form_template_id);
+  return mapJobRow(row, template);
 }
 
 export async function getAllJobSlugs(): Promise<string[]> {
   const jobs = await getPublishedJobs();
   return jobs.map((job) => job.slug);
+}
+
+export async function getFormTemplates(): Promise<ApplicationFormTemplate[]> {
+  const client = createPublicClient();
+  const { data, error } = await client.database
+    .from("application_form_templates")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load form templates", error);
+    return [];
+  }
+  return ((data || []) as TemplateRow[]).map(mapTemplateRow);
 }
 
 export async function getAdminJobs(): Promise<Job[]> {
@@ -184,5 +238,5 @@ export async function getAdminJobs(): Promise<Job[]> {
     console.error("Failed to load admin jobs", error);
     return [];
   }
-  return ((data || []) as JobRow[]).map(mapJobRow);
+  return ((data || []) as JobRow[]).map((row) => mapJobRow(row));
 }

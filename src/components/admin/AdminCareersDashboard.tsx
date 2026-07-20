@@ -10,6 +10,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { AdminJobForm } from "@/components/admin/AdminJobForm";
+import { AdminFormTemplateEditor } from "@/components/admin/AdminFormTemplateEditor";
+import { PasswordStrengthMeter } from "@/components/admin/PasswordStrengthMeter";
+import type { ApplicationFormTemplate } from "@/lib/application-form-templates";
+import { normalizeTemplateFields } from "@/lib/application-form-templates";
 import {
   AdminBadge,
   AdminLoading,
@@ -38,6 +42,7 @@ type JobRow = {
   application_includes: string[] | null;
   benefits: string[] | null;
   posted_at: string | null;
+  form_template_id: string | null;
 };
 
 type ApplicationRow = {
@@ -56,6 +61,7 @@ type ApplicationRow = {
   jobs?: { title: string; slug: string } | null;
   expected_comp: string;
   years_experience: string;
+  form_responses?: Record<string, string> | null;
 };
 
 type Stats = {
@@ -65,13 +71,15 @@ type Stats = {
   newApplications: number;
 };
 
-type Tab = "jobs" | "jobForm" | "applications" | "users";
+type Tab = "jobs" | "jobForm" | "templates" | "templateForm" | "applications" | "users";
 
 export function AdminCareersDashboard() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("jobs");
   const [jobs, setJobs] = useState<JobRow[]>([]);
+  const [templates, setTemplates] = useState<ApplicationFormTemplate[]>([]);
   const [editingJob, setEditingJob] = useState<JobRow | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<ApplicationFormTemplate | null>(null);
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState("");
@@ -100,6 +108,23 @@ export function AdminCareersDashboard() {
       if (!res.ok || !json.ok) throw new Error(json.error || "Failed to load");
       setJobs(json.jobs);
       setApplications(json.applications);
+      setTemplates(
+        (json.templates || []).map(
+          (t: {
+            id: string;
+            slug: string;
+            name: string;
+            description: string;
+            fields: unknown;
+          }) => ({
+            id: t.id,
+            slug: t.slug,
+            name: t.name,
+            description: t.description || "",
+            fields: normalizeTemplateFields(t.fields),
+          }),
+        ),
+      );
       setStats(json.stats);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load");
@@ -131,6 +156,47 @@ export function AdminCareersDashboard() {
     setTab("jobs");
     setActionMsg("Job saved successfully.");
     setActionError(false);
+    void load();
+  }
+
+  function openCreateTemplate() {
+    setEditingTemplate(null);
+    setTab("templateForm");
+    setActionMsg("");
+    setActionError(false);
+  }
+
+  function openEditTemplate(template: ApplicationFormTemplate) {
+    setEditingTemplate(template);
+    setTab("templateForm");
+    setActionMsg("");
+    setActionError(false);
+  }
+
+  function handleTemplateSaved() {
+    setEditingTemplate(null);
+    setTab("templates");
+    setActionMsg("Form template saved.");
+    setActionError(false);
+    void load();
+  }
+
+  async function deleteTemplate(template: ApplicationFormTemplate) {
+    if (!confirm(`Delete template "${template.name}"?`)) return;
+    setActionMsg("");
+    setActionError(false);
+    const res = await fetch("/api/admin/form-templates/", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: template.id }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) {
+      setActionMsg(json.error || "Could not delete template");
+      setActionError(true);
+      return;
+    }
+    setActionMsg("Template deleted.");
     void load();
   }
 
@@ -174,6 +240,7 @@ export function AdminCareersDashboard() {
         pay: job.pay,
         benefits: job.benefits || [],
         posted_at: job.posted_at,
+        form_template_id: job.form_template_id,
       }),
     });
     const json = await res.json();
@@ -239,6 +306,14 @@ export function AdminCareersDashboard() {
       title: editingJob ? "Edit job" : "New job",
       meta: "Fields match what candidates see on the careers page.",
     },
+    templates: {
+      title: "Application form templates",
+      meta: "Create role-specific apply forms and assign them to job postings.",
+    },
+    templateForm: {
+      title: editingTemplate ? "Edit template" : "New template",
+      meta: "Configure fields, requirements, and layout for candidate applications.",
+    },
     applications: {
       title: "Applications",
       meta: "Review submissions, resumes, and update hiring status.",
@@ -256,6 +331,11 @@ export function AdminCareersDashboard() {
       jobFormLabel={jobFormLabel}
       onNavigate={(id) => {
         if (id === "jobForm" && !editingJob) setEditingJob(null);
+        if (id === "templates") {
+          setEditingTemplate(null);
+          setTab("templates");
+          return;
+        }
         setTab(id);
       }}
       onLogout={() => void logout()}
@@ -267,10 +347,15 @@ export function AdminCareersDashboard() {
             <Plus className="h-4 w-4" />
             Create job
           </button>
+        ) : tab === "templates" ? (
+          <button type="button" className="admin-btn admin-btn-primary" onClick={openCreateTemplate}>
+            <Plus className="h-4 w-4" />
+            Create template
+          </button>
         ) : undefined
       }
     >
-      {stats && tab !== "jobForm" && <AdminStatGrid stats={stats} />}
+      {stats && tab !== "jobForm" && tab !== "templateForm" && <AdminStatGrid stats={stats} />}
 
       {actionMsg && (
         <div className={`admin-toast ${actionError ? "error" : ""}`}>{actionMsg}</div>
@@ -391,10 +476,68 @@ export function AdminCareersDashboard() {
       {!loading && tab === "jobForm" && (
         <AdminJobForm
           job={editingJob}
+          templates={templates}
           onSaved={handleJobSaved}
           onCancel={() => {
             setEditingJob(null);
             setTab("jobs");
+          }}
+        />
+      )}
+
+      {!loading && tab === "templates" && (
+        <div className="admin-panel">
+          <div className="admin-panel-header">
+            <p className="admin-panel-title">Apply form templates</p>
+            <span className="admin-chip">{templates.length} templates</span>
+          </div>
+          <div className="admin-panel-body space-y-4">
+            {templates.length === 0 && (
+              <p className="py-8 text-center text-sm admin-muted">
+                No templates yet. Create one to customize application fields per role type.
+              </p>
+            )}
+            {templates.map((template) => {
+              const jobCount = jobs.filter((j) => j.form_template_id === template.id).length;
+              return (
+                <article key={template.id} className="admin-job-row">
+                  <div>
+                    <h3 className="text-base font-semibold text-white">{template.name}</h3>
+                    <p className="mt-1 text-sm admin-muted">{template.description || template.slug}</p>
+                    <p className="mt-2 text-xs admin-muted">
+                      {template.fields.length} fields · used by {jobCount} job{jobCount === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-sm"
+                      onClick={() => openEditTemplate(template)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-sm admin-btn-danger"
+                      onClick={() => void deleteTemplate(template)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {!loading && tab === "templateForm" && (
+        <AdminFormTemplateEditor
+          template={editingTemplate}
+          onSaved={handleTemplateSaved}
+          onCancel={() => {
+            setEditingTemplate(null);
+            setTab("templates");
           }}
         />
       )}
@@ -457,6 +600,22 @@ export function AdminCareersDashboard() {
                     )}
                   </div>
 
+                  {app.form_responses && Object.keys(app.form_responses).length > 0 && (
+                    <div className="mt-4 rounded-lg border border-white/10 p-4 text-sm">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] admin-muted">
+                        Additional responses
+                      </p>
+                      <dl className="mt-3 space-y-2">
+                        {Object.entries(app.form_responses).map(([key, value]) => (
+                          <div key={key}>
+                            <dt className="text-xs admin-muted">{key}</dt>
+                            <dd className="mt-0.5 whitespace-pre-wrap text-white/90">{value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  )}
+
                   <div className="mt-4 flex flex-wrap gap-2">
                     {["new", "reviewing", "shortlisted", "rejected", "hired"].map((status) => (
                       <button
@@ -515,6 +674,7 @@ export function AdminCareersDashboard() {
                 onChange={(e) => setUserForm((s) => ({ ...s, password: e.target.value }))}
                 className="admin-input"
               />
+              <PasswordStrengthMeter password={userForm.password} />
             </label>
             <label>
               <span className="admin-label">Role</span>
