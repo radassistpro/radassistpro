@@ -150,6 +150,76 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="section-padding bg-cream-50">
+        <div className="container-wide">
+          <div className="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+            <FadeIn>
+              <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl shadow-xl shadow-navy-950/10 lg:mx-0">
+                <Image
+                  src={images.founder}
+                  alt="Prashant Rana, Founder and CEO of RadAssistPro"
+                  fill
+                  className="object-cover object-top"
+                  sizes="(max-width: 1024px) 90vw, 40vw"
+                />
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.1}>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+                Leadership
+              </p>
+              <h2 className="heading-display mt-4 text-3xl text-navy-950 md:text-4xl">
+                Prashant Rana
+              </h2>
+              <p className="mt-2 text-sm font-medium uppercase tracking-[0.14em] text-muted">
+                Founder &amp; CEO, RadAssistPro
+              </p>
+              <div className="mt-6 space-y-4 text-[1.05rem] leading-relaxed text-navy-800">
+                <p>
+                  Prashant Rana founded RadAssistPro on a simple, data-backed
+                  observation: radiology groups lose 3+ hours per radiologist
+                  per day to administrative friction — call handling, relay
+                  logging, and documentation that pulls physicians away from
+                  reading. RadAssistPro exists to give that time back.
+                </p>
+                <p>
+                  Before RadAssistPro, Prashant co-founded Zepp Media and
+                  RxOnWeb Pvt. Ltd., working across growth strategy, digital
+                  consulting, and MVP solutions. That background in building
+                  lean, high-leverage operations shapes how RadAssistPro is run
+                  today: not as a software company, but as a precision-trained
+                  operational layer that plugs into a group&apos;s existing PACS
+                  without disrupting how they already work.
+                </p>
+                <p>
+                  Prashant holds his education from DY Patil University and is
+                  based in the Greater Delhi area, working directly with U.S.
+                  teleradiology groups, imaging centers, and radiologists to
+                  build coverage models suited to how independent practices
+                  actually operate.
+                </p>
+              </div>
+              <a
+                href="https://www.linkedin.com/in/prashantranaofficial/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-flex items-center gap-3 rounded-full border border-navy-900/15 bg-surface px-5 py-2.5 text-sm font-semibold text-navy-950 shadow-sm transition-colors hover:border-accent hover:text-accent"
+              >
+                <svg
+                  aria-hidden
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 fill-current text-[#0A66C2]"
+                >
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                LinkedIn
+              </a>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
       <section className="section-padding bg-cream-100">
         <div className="container-wide">
           <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.2fr]">

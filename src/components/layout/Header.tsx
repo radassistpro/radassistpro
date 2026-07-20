@@ -27,7 +27,12 @@ export function Header() {
 
   const isHome = pathname === "/";
   const onDarkHero =
-    (isHome || pathname === "/book-a-call") && !scrolled && !mobileOpen;
+    (isHome ||
+      pathname === "/book-a-call" ||
+      pathname === "/careers" ||
+      pathname.startsWith("/careers/")) &&
+    !scrolled &&
+    !mobileOpen;
 
   return (
     <header

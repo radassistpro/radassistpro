@@ -9,6 +9,7 @@ export const images = {
   aboutHero: "/images/about-hero-campus.webp",
   aboutMission: "/images/about-mission-team.webp",
   aboutSupport: "/images/about-dedicated-support.webp",
+  founder: "/images/prashant-rana.webp",
 
   servicesHero: "/images/services-hero-modalities.webp",
   servicePacs: "/images/service-pacs-admin.webp",

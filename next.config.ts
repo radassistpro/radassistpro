@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+const insforgeHost =
+  process.env.NEXT_PUBLIC_INSFORGE_URL ||
+  "https://saxq95pe.ap-southeast.insforge.app";
+
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
@@ -14,11 +19,12 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://app.cal.com",
+      // unsafe-eval is required by React/Next.js in development only
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://cal.com https://app.cal.com",
       "font-src 'self' https://cal.com https://app.cal.com",
-      "connect-src 'self' https://cal.com https://app.cal.com https://api.cal.com",
+      `connect-src 'self' https://cal.com https://app.cal.com https://api.cal.com ${insforgeHost}`,
       "frame-src 'self' https://cal.com https://app.cal.com https://business.radassistpro.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
