@@ -11,7 +11,7 @@ import { siteConfig } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "About Us: U.S. Radiology Support Team",
   description:
-    "Meet RadAssistPro, the team behind virtual PACS administration and prelim teleradiology for 33+ U.S. facilities. A unit of RxOnWeb. Book a 15-minute call.",
+    `Meet RadAssistPro, the team behind virtual PACS administration and prelim teleradiology for 33+ U.S. facilities. ${siteConfig.unit}. Book a 15-minute call.`,
   alternates: { canonical: "/about/" },
 };
 
@@ -55,7 +55,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About RadAssistPro"
         title="PACS operations support for U.S. radiology groups"
-        description="RadAssistPro is a unit of RxOnWeb. We provide PACS administration and preliminary reading support so radiologists can stay on interpretation, not operational tasks."
+        description={`${siteConfig.unit}. We provide PACS administration and preliminary reading support so radiologists can stay on interpretation, not operational tasks.`}
         image={images.aboutHero}
         imageAlt="RadAssistPro support team campus for U.S. radiology operations"
       />
@@ -185,7 +185,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Before RadAssistPro, Prashant co-founded Zepp Media and
-                  RxOnWeb Pvt. Ltd., working across growth strategy, digital
+                  RxOnWeb Private Limited, working across growth strategy, digital
                   consulting, and MVP solutions. That background in building
                   lean, high-leverage operations shapes how RadAssistPro is run
                   today: not as a software company, but as a precision-trained

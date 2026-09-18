@@ -19,7 +19,10 @@ export function Footer() {
               />
               <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/60">
                 PACS administration and preliminary teleradiology support for
-                U.S. radiology groups. {siteConfig.unit}.
+                U.S. radiology groups.
+              </p>
+              <p className="mt-4 text-lg font-bold tracking-tight text-white">
+                {siteConfig.unit}
               </p>
               <p className="mt-3 text-xs font-medium uppercase tracking-[0.15em] text-blue-400">
                 {siteConfig.tagline}
@@ -93,7 +96,7 @@ export function Footer() {
 
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
-                Contact
+                Contact Us
               </h3>
               <ul className="mt-4 space-y-3">
                 <li className="flex items-start gap-3 text-sm text-white/70">

@@ -61,7 +61,7 @@ const organizationSchema = {
     postalCode: "08755",
     addressCountry: "US",
   },
-  parentOrganization: { "@type": "Organization", name: "RxOnWeb" },
+  parentOrganization: { "@type": "Organization", name: "RxOnWeb Private Limited" },
 };
 
 export default function RootLayout({

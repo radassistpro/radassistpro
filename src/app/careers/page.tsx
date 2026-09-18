@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Careers: Build With RadAssistPro",
   description:
-    "Join RadAssistPro and RxOnWeb. Open roles across marketing, operations, PACS administration, and growth. Apply on the website — no login required.",
+    `Join RadAssistPro, ${siteConfig.unit.toLowerCase()}. Open roles across marketing, operations, PACS administration, and growth. Apply on the website — no login required.`,
   alternates: { canonical: "/careers/" },
 };
 
@@ -22,7 +22,7 @@ export default async function CareersPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Careers at RadAssistPro",
-    description: "Open roles at RadAssistPro, a unit of RxOnWeb.",
+    description: `Open roles at RadAssistPro, ${siteConfig.unit.toLowerCase()}.`,
     url: `${siteConfig.url}/careers/`,
     mainEntity: {
       "@type": "ItemList",
@@ -52,7 +52,7 @@ export default async function CareersPage() {
               Work that demands precision.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70 md:text-xl">
-              RadAssistPro and RxOnWeb hire operators and creatives who raise the
+              {siteConfig.unit}. We hire operators and creatives who raise the
               standard — in radiology operations and in how we tell the story of
               AI and technology.
             </p>
