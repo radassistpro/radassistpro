@@ -185,7 +185,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Before RadAssistPro, Prashant co-founded Zepp Media and
-                  RxOnWeb Private Limited, working across growth strategy, digital
+                  RX ON WEB Private Limited, working across growth strategy, digital
                   consulting, and MVP solutions. That background in building
                   lean, high-leverage operations shapes how RadAssistPro is run
                   today: not as a software company, but as a precision-trained

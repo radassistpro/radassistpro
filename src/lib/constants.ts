@@ -5,7 +5,7 @@ export const siteConfig = {
   tagline: "Read More. Worry Less.",
   description:
     "U.S.-based PACS administration and preliminary teleradiology support for radiology groups, imaging centers, and hospital networks.",
-  unit: "A Unit of RxOnWeb Private Limited",
+  unit: "A Unit of RX ON WEB Private Limited",
   phone: "+1 (848) 221-8002",
   email: "business@radassistpro.com",
   address: "1625 Jacks Way, Toms River, NJ 08755",
